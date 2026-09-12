@@ -16,6 +16,19 @@ The repository includes five small POP909 examples, so the interface works
 immediately after installation. It analyzes MIDI note events rather than audio
 recordings.
 
+## Interactive experience
+
+The Streamlit interface supports two workflows:
+
+- compare any pair from the five bundled demonstrations
+- upload two `.mid` or `.midi` files and compare your own melodies
+
+The result includes an overall similarity label, component-level scores,
+pitch-shape and note-duration charts, and a plain-English explanation of the
+strongest and weakest musical match. When uploaded files do not include beat
+annotations, the score clearly reports that limitation and reweights the
+available components.
+
 ## How it works
 
 Each MIDI file is reduced to a melody feature sequence. Dynamic time warping
@@ -68,11 +81,11 @@ The bundled demonstration files are excerpts from the
 under its MIT License. See [`data/POP909/NOTICE.md`](data/POP909/NOTICE.md) for
 the source and academic citation.
 
-## Current scope
+## Design focus
 
-This version is intentionally focused on explainable melody comparison. The
-next iteration will add richer visual explanations, MIDI upload, tests, and a
-deployed demo.
+This version is intentionally focused on explainable melody comparison. Every
+score remains connected to a visible musical feature, and track-selection
+fallbacks are disclosed inside the interface.
 
 ## Author
 
