@@ -5,11 +5,14 @@
 [![Tests](https://github.com/SelormEssey/MelodyMatch/actions/workflows/tests.yml/badge.svg)](https://github.com/SelormEssey/MelodyMatch/actions/workflows/tests.yml)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-interactive-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Open_App-FF4B4B?logo=streamlit&logoColor=white)](https://melodymatch-ycxjypq9b6tqsrtyf6epmc.streamlit.app/)
 
 MelodyMatch is an interactive music-information-retrieval project that compares
 symbolic melodies and explains what makes them similar. It extracts the lead
 melody from MIDI, aligns musical sequences of different lengths, and presents
 an overall score with interpretable pitch, rhythm, contour, and beat evidence.
+
+**[Try MelodyMatch in your browser](https://melodymatch-ycxjypq9b6tqsrtyf6epmc.streamlit.app/)**
 
 ## Why this project
 
