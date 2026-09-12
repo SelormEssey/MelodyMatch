@@ -121,13 +121,22 @@ def compare_melodies(
         distance=lambda a, b: 0.0 if int(a) == int(b) else 1.0,
         scale=1.0,
     )
-    beat_similarity = scaled_similarity(
-        melody_a.beat_positions,
-        melody_b.beat_positions,
-        distance=circular_phase_distance,
-        scale=0.5,
-        unavailable_score=0.5,
+    beat_available = bool(melody_a.beat_positions and melody_b.beat_positions)
+    beat_similarity = (
+        scaled_similarity(
+            melody_a.beat_positions,
+            melody_b.beat_positions,
+            distance=circular_phase_distance,
+            scale=0.5,
+        )
+        if beat_available
+        else 0.0
     )
+
+    if not beat_available:
+        active_weights = normalize_weights(
+            {name: value for name, value in active_weights.items() if name != "beat"}
+        )
 
     final_score = (
         active_weights.get("interval", 0.0) * interval_similarity
@@ -143,6 +152,7 @@ def compare_melodies(
         "duration_similarity": round(duration_similarity, 6),
         "contour_similarity": round(contour_similarity, 6),
         "beat_similarity": round(beat_similarity, 6),
+        "beat_available": beat_available,
         "final_score": round(final_score, 6),
         "note_count_difference": abs(melody_a.note_count - melody_b.note_count),
         "average_pitch_difference": round(
@@ -165,4 +175,3 @@ def compare_all_pairs(
         for a, b in combinations(sorted(melodies.keys()), 2)
     ]
     return pd.DataFrame(rows)
-

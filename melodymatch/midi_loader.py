@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from io import BytesIO
 from pathlib import Path
 
 import pretty_midi
@@ -165,3 +166,28 @@ def load_song_features(dataset_root: str | Path, song_id: str | int) -> MelodyFe
         beat_source=beat_source,
     )
 
+
+def load_uploaded_midi(content: bytes, filename: str) -> MelodyFeatures:
+    """Extract melody features from an uploaded MIDI file."""
+    if not content:
+        raise ValueError("The uploaded MIDI file is empty.")
+
+    safe_name = Path(filename).name
+    try:
+        midi_data = pretty_midi.PrettyMIDI(BytesIO(content))
+    except Exception as exc:
+        raise RuntimeError(f"Could not parse {safe_name} as MIDI: {exc}") from exc
+
+    instrument, fallback_used = choose_melody_track(midi_data)
+    notes = instrument_notes(instrument)
+    track_name = instrument.name.strip() if instrument.name else "Detected melody track"
+
+    return build_melody_features(
+        song_id=Path(safe_name).stem,
+        midi_path=Path(safe_name),
+        track_name=track_name,
+        fallback_used=fallback_used,
+        notes=notes,
+        beat_times=[],
+        beat_source=None,
+    )
