@@ -1,39 +1,56 @@
 # MelodyMatch
 
-An interactive music-information-retrieval project for comparing symbolic
-melodies and explaining what makes them sound similar.
+**Explainable MIDI melody comparison with dynamic time warping.**
 
-MelodyMatch extracts the lead melody from MIDI files, aligns musical sequences
-with dynamic time warping, and reports an overall similarity score alongside
-four interpretable components:
+[![Tests](https://github.com/SelormEssey/MelodyMatch/actions/workflows/tests.yml/badge.svg)](https://github.com/SelormEssey/MelodyMatch/actions/workflows/tests.yml)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-interactive-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 
-- pitch intervals
-- note duration
-- melodic contour
-- beat placement
+MelodyMatch is an interactive music-information-retrieval project that compares
+symbolic melodies and explains what makes them similar. It extracts the lead
+melody from MIDI, aligns musical sequences of different lengths, and presents
+an overall score with interpretable pitch, rhythm, contour, and beat evidence.
 
-The repository includes five small POP909 examples, so the interface works
-immediately after installation. It analyzes MIDI note events rather than audio
-recordings.
+## Why this project
 
-## Interactive experience
+A single similarity number is difficult to trust. MelodyMatch keeps the result
+connected to musical structure so a listener, musician, or researcher can see
+which characteristics agree and which differ.
 
-The Streamlit interface supports two workflows:
+The interface supports two workflows:
 
-- compare any pair from the five bundled demonstrations
-- upload two `.mid` or `.midi` files and compare your own melodies
+- explore five bundled POP909 demonstrations immediately
+- upload any two `.mid` or `.midi` files for a custom comparison
 
-The result includes an overall similarity label, component-level scores,
-pitch-shape and note-duration charts, and a plain-English explanation of the
-strongest and weakest musical match. When uploaded files do not include beat
-annotations, the score clearly reports that limitation and reweights the
-available components.
+## Demo results
+
+![Bar chart of all ten bundled MelodyMatch comparisons](docs/demo_similarity.png)
+
+Across the ten bundled comparisons, overall scores range from **81.1% to
+84.7%**. The strongest pair is `002` and `003`, driven partly by a **90.3%
+pitch-interval match**. These values describe similarity under this project's
+weighted feature definition. They are not classification accuracy or human
+similarity ratings.
+
+| Example pair | Overall | Pitch intervals | Duration | Contour | Beat placement |
+|---|---:|---:|---:|---:|---:|
+| `002` vs `003` | **84.7%** | 90.3% | 84.1% | 75.3% | 83.5% |
+| `001` vs `002` | **83.9%** | 85.2% | 81.3% | 83.8% | 86.3% |
+| `004` vs `005` | **81.1%** | 83.9% | 81.2% | 77.6% | 76.8% |
+
+The full reproducible output is available in
+[`docs/demo_results.csv`](docs/demo_results.csv).
 
 ## How it works
 
-Each MIDI file is reduced to a melody feature sequence. Dynamic time warping
-aligns sequences of different lengths before each component receives a score
-from 0 to 1. The final score uses transparent, configurable weights:
+1. Parse the MIDI and select a track labeled `MELODY`.
+2. When that label is absent, disclose and apply a documented non-drum-track
+   fallback.
+3. Extract pitch intervals, relative note durations, melodic contour, and beat
+   phase.
+4. Align each sequence with dynamic time warping.
+5. Convert distances into component similarities and calculate a transparent
+   weighted score.
 
 | Component | Weight | What it captures |
 |---|---:|---|
@@ -42,53 +59,85 @@ from 0 to 1. The final score uses transparent, configurable weights:
 | Melodic contour | 20% | Upward, downward, or repeated motion |
 | Beat placement | 10% | Position within the beat cycle |
 
+Uploaded MIDI files usually lack POP909 beat annotations. In that case,
+MelodyMatch clearly marks beat placement as unavailable and reweights the score
+across the other three components.
+
 ## Run locally
 
 ```bash
+git clone https://github.com/SelormEssey/MelodyMatch.git
+cd MelodyMatch
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-To run the command-line analysis and export all pairwise results:
+Run the command-line analysis and export every demonstration pair:
 
 ```bash
 python run_backend.py
 ```
 
-The CSV is written to `outputs/pairwise_similarity.csv`.
+## Testing
+
+The test suite covers feature extraction, beat phase, DTW scoring, missing-beat
+handling, MIDI parsing, the five-song pipeline, and both Streamlit interface
+modes.
+
+```bash
+pip install -r requirements-dev.txt
+pytest -q
+```
+
+GitHub Actions runs the same suite on every pull request and push to `main`.
+
+## Reproduce the results figure
+
+```bash
+python -m scripts.generate_demo_assets
+```
+
+This regenerates the results CSV and chart directly from the bundled MIDI
+examples.
 
 ## Project structure
 
 ```text
 MelodyMatch/
-├── app.py                  # Streamlit comparison interface
-├── run_backend.py          # Command-line analysis
-├── melodymatch/
-│   ├── features.py         # Musical feature extraction
-│   ├── midi_loader.py      # MIDI and beat-data loading
-│   ├── pipeline.py         # Reusable analysis workflow
-│   └── similarity.py       # DTW and weighted scoring
-├── data/POP909/            # Five demonstration melodies
-└── requirements.txt
+├── app.py                       # Interactive comparison studio
+├── run_backend.py               # Command-line analysis
+├── melodymatch/                 # Feature extraction and similarity engine
+├── tests/                       # Automated unit and integration tests
+├── scripts/generate_demo_assets.py
+├── docs/                        # Reproducible results and visuals
+├── data/POP909/                 # Five licensed demonstration melodies
+└── .github/workflows/tests.yml  # Continuous integration
 ```
+
+## Limitations
+
+- Similarity weights are human-readable design choices, not learned from
+  listener judgments.
+- The fallback melody-track heuristic may choose the wrong voice in dense,
+  unlabeled arrangements.
+- MIDI captures symbolic notes, not timbre, production, lyrics, or audio
+  performance.
+- The bundled set is intentionally small and demonstrates behavior rather than
+  population-level evaluation.
 
 ## Data attribution
 
-The bundled demonstration files are excerpts from the
+The bundled files are excerpts from the
 [POP909 dataset](https://github.com/music-x-lab/POP909-Dataset), distributed
 under its MIT License. See [`data/POP909/NOTICE.md`](data/POP909/NOTICE.md) for
 the source and academic citation.
-
-## Design focus
-
-This version is intentionally focused on explainable melody comparison. Every
-score remains connected to a visible musical feature, and track-selection
-fallbacks are disclosed inside the interface.
 
 ## Author
 
 **Selorm Essey**
 
 M.S. Computer Science, Emory University
+
+[GitHub](https://github.com/SelormEssey) · [LinkedIn](https://www.linkedin.com/in/selormessey/)
