@@ -4,7 +4,7 @@ from __future__ import annotations
 
 DEFAULT_SONG_IDS = ("001", "002", "003", "004", "005")
 
-DEFAULT_DATASET_ROOT_CANDIDATES = ("data/POP909", "POP909", "POP909 2")
+DEFAULT_DATASET_ROOT_CANDIDATES = ("data/POP909",)
 
 # The weights are normalized before scoring, so they do not need to sum to 1.
 # Intervals are the strongest cue, followed by duration, contour, and beat phase.

@@ -5,3 +5,22 @@ venv/
 outputs/
 .DS_Store
 
+# Full research datasets stay outside the repository.
+/XMIDI_Dataset/
+/POP909/
+/POP909 2/
+
+# Keep only the five licensed demonstration excerpts in version control.
+data/POP909/*
+!data/POP909/LICENSE
+!data/POP909/NOTICE.md
+!data/POP909/001/
+!data/POP909/001/**
+!data/POP909/002/
+!data/POP909/002/**
+!data/POP909/003/
+!data/POP909/003/**
+!data/POP909/004/
+!data/POP909/004/**
+!data/POP909/005/
+!data/POP909/005/**
